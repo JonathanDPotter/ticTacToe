@@ -13,3 +13,36 @@
   justify-content: center;
   background-color: lightpink;
 }
+
+#scores {
+  height: 100px;
+  width: 300px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.scorebox {
+  height: 100px;
+  width: 100px;
+  border: 3px solid black;
+  opacity: 0;
+}
+
+#board {
+  margin-top: 50px;
+  height: 300px;
+  width: 300px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 3px;
+  background-color: black;
+  opacity: 0;
+}
+
+.square {
+  height: 100%;
+  width: 100%;
+  background-color: lightpink;
+  color: white;
+  font-size: 90px;
+}
