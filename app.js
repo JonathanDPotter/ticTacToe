@@ -1,15 +1,16 @@
-const board = (() => {
+const game = (() => {
   "use strict";
 
-  this.spaces = new Array(9);
+  this.spaces = [
+    ["", "", ""],
+    ["", "", ""],
+    ["", "", ""],
+  ];
 
-  function setPiece(loc, piece) {
-    spaces[loc[0]][loc[1]] = piece;
-  }
+  this.activePlayer = {};
 
   function makeBoard() {
     const squares = document.getElementById("board");
-    console.log(squares);
 
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
@@ -17,42 +18,130 @@ const board = (() => {
         square.setAttribute("id", `${i}-${j}`);
         square.classList.add("square");
         squares.appendChild(square);
-
-        square.addEventListener("click", () => {});
+        square.addEventListener("click", (event) => {
+          if (square.textContent == "") {
+            square.textContent = activePlayer.mark;
+            spaces[square.id[0]][square.id[2]] = activePlayer.mark;
+            activePlayer == playerOne
+              ? (activePlayer = playerTwo)
+              : (activePlayer = playerOne);
+            checkWin();
+          }
+        });
       }
     }
   }
 
-  function clearBoard() {
-    for (let i = 0; i < 9; i++) {
-      spaces[i] = null;
+  function checkWin() {
+    const playerOneScore = document.getElementById("oneScore");
+    const playerTwoScore = document.getElementById("twoScore");
+
+    // check rows and columns for three-in-a-row
+    for (let i = 0; i < 3; i++) {
+      // first rows
+      if (spaces[i].every((obj) => obj == "X")) {
+        playerOne.win();
+      } else if (spaces[i].every((obj) => obj == "O")) {
+        playerTwo.win();
+      }
+
+      // then columns
+      if (
+        [spaces[0][i], spaces[1][i], spaces[2][i]].every((obj) => obj == "X")
+      ) {
+        playerOne.win();
+      } else if (
+        [spaces[0][i], spaces[1][i], spaces[2][i]].every((obj) => obj == "O")
+      ) {
+        playerTwo.win();
+      }
     }
+    // check diagonals more tediously (no loop)
+    if ([spaces[0][0], spaces[1][1], spaces[2][2]].every((obj) => obj == "X")) {
+      playerOne.win();
+    } else if (
+      [spaces[0][0], spaces[1][1], spaces[2][2]].every((obj) => obj == "O")
+    ) {
+      playerTwo.win();
+    }
+    if ([spaces[0][2], spaces[1][1], spaces[2][0]].every((obj) => obj == "X")) {
+      playerOne.win();
+    } else if (
+      [spaces[0][2], spaces[1][1], spaces[2][0]].every((obj) => obj == "O")
+    ) {
+      playerTwo.win();
+    }
+
+    // check for a tie
+    let xo = /[XO]/;
+    console.table(spaces);
+    console.log(
+      [...spaces[0],...spaces[1],...spaces[2]].every((i) => {
+        xo.test(i);
+      })
+    );
+    if (
+      [...spaces[0],...spaces[1],...spaces[2]].every((i) => {
+        xo.test(i);
+      })
+    ) {
+      document.getElementById("win").textContent = "It's a tie!";
+      window.setTimeout(() => clearBoard(), 1000);
+    }
+    playerOneScore.textContent = playerOne.score;
+    playerTwoScore.textContent = playerTwo.score;
   }
 
-  return { makeBoard, clearBoard };
+  function clearBoard() {
+    spaces = [
+      ["", "", ""],
+      ["", "", ""],
+      ["", "", ""],
+    ];
+    document.querySelectorAll(".square").forEach((i) => (i.textContent = ""));
+  }
+
+  return { makeBoard, spaces, activePlayer, clearBoard };
 })();
 
-const makePlayer = (name, score) => ({
-  name,
-  score,
-  win() {
-    this.score++;
-  },
-  getScore() {
-    return this.score;
-  },
-});
+const setup = () => {
+  const form = document.forms[0];
+  const board = document.getElementById("board");
+  const scores = document.getElementById("scores");
+  const nameOne = document.getElementById("name-one");
+  const nameTwo = document.getElementById("name-two");
 
-function setup() {
-  board.makeBoard();
-  board.clearBoard();
-  
-  
-}
+  game.makeBoard();
 
+  const makePlayer = (name, score, mark) => ({
+    name,
+    score,
+    mark,
+    win() {
+      this.score++;
+      const winText = document.getElementById("win");
+      winText.textContent = `${this.name} wins!`;
+      window.setTimeout(() => {
+        winText.textContent = "";
+        game.clearBoard();
+      }, 1000);
+    },
+    getScore() {
+      return this.score;
+    },
+  });
 
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    playerOne = makePlayer(form.one.value, 0, "X");
+    playerTwo = makePlayer(form.two.value, 0, "O");
+    nameOne.textContent = playerOne.name;
+    nameTwo.textContent = playerTwo.name;
+    form.style.opacity = 0;
+    scores.style.opacity = 1;
+    board.style.opacity = 1;
+    game.activePlayer = playerOne;
+  });
+};
 
-playerOne = makePlayer("Dave", 0);
-playerTwo = makePlayer("Mary", 0);
-
-console.log(playerOne.name, playerOne.score);
+setup();
