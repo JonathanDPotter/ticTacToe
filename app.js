@@ -2,9 +2,9 @@ const game = (() => {
   "use strict";
 
   this.spaces = [
-    ["", "", ""],
-    ["", "", ""],
-    ["", "", ""],
+    [undefined, undefined, undefined],
+    [undefined, undefined, undefined],
+    [undefined, undefined, undefined],
   ];
 
   this.activePlayer = {};
@@ -73,20 +73,15 @@ const game = (() => {
     }
 
     // check for a tie
-    let xo = /[XO]/;
-    console.table(spaces);
-    console.log(
-      [...spaces[0],...spaces[1],...spaces[2]].every((i) => {
-        xo.test(i);
-      })
-    );
     if (
-      [...spaces[0],...spaces[1],...spaces[2]].every((i) => {
-        xo.test(i);
-      })
+      ![...spaces[0], ...spaces[1], ...spaces[2]].some((i) => i == undefined)
     ) {
-      document.getElementById("win").textContent = "It's a tie!";
-      window.setTimeout(() => clearBoard(), 1000);
+      const winText = document.getElementById("win");
+      winText.textContent = `I's a tie!`;
+      window.setTimeout(() => {
+        winText.textContent = "";
+        game.clearBoard();
+      }, 1000);
     }
     playerOneScore.textContent = playerOne.score;
     playerTwoScore.textContent = playerTwo.score;
@@ -94,9 +89,9 @@ const game = (() => {
 
   function clearBoard() {
     spaces = [
-      ["", "", ""],
-      ["", "", ""],
-      ["", "", ""],
+      [undefined, undefined, undefined],
+      [undefined, undefined, undefined],
+      [undefined, undefined, undefined],
     ];
     document.querySelectorAll(".square").forEach((i) => (i.textContent = ""));
   }
